@@ -1,48 +1,20 @@
-import 'package:flutter/material.dart';
-import '../models/plant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class PlantDetailsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final Plant plant = ModalRoute.of(context)!.settings.arguments as Plant;
+class SharedPreferencesHelper {
+  static const String _favoriteKey = 'favorite_plants';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(plant.name),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  plant.imageUrl,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Descrição:',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            SizedBox(height: 8),
-            Text(plant.description),
-            SizedBox(height: 16),
-            Text(
-              'Dicas de Cuidado:',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            SizedBox(height: 8),
-            Text(plant.careTips),
-          ],
-        ),
-      ),
-    );
+  static Future<void> saveFavoritePlantIds(List<String> favoriteIds) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_favoriteKey, favoriteIds);
+  }
+
+  static Future<List<String>> getFavoritePlantIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_favoriteKey) ?? [];
+  }
+
+  static Future<bool> isPlantFavorite(String plantId) async {
+    final favoriteIds = await getFavoritePlantIds();
+    return favoriteIds.contains(plantId);
   }
 }
